@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xml="somefile">
+    <element name="papers">
+        <complexType>
+            <sequence>
+                <element ref="tns:paperType"
+                         minOccurs="1"
+                         maxOccurs="unbounded"/>
+            </sequence>
+        </complexType>
+    </element>
+    
+    <element name="paperType" type="tns:PaperType" abstract="true"/>
+    <element name="subscribable" type="tns:Subscribable" abstract="true"/>
+    <element name="paper" type="tns:Paper" substitutionGroup="tns:subscribable"/>
+    <element name="magazine" type="tns:Magazine" substitutionGroup="tns:subscribable"/>
+    <element name="booklet" type="tns:Booklet" substitutionGroup="tns:paperType"/>
+    
+    <complexType name="PaperType">
+        <sequence>
+            <element name="title" type="string"/>
+            <element name="type" type="tns:Type"/>
+            <element name="monthly" type="boolean"/>
+            <element name="chars" type="tns:Chars"/>
+        </sequence>
+        <attribute name="id" type="tns:Id" use="required"/>
+    </complexType>
+
+    <complexType name="Subscribable">
+        <complexContent>
+            <extension base="tns:PaperType">
+                <sequence>
+                    <element name="chars">
+                        <complexType>
+                            <complexContent>
+                                <extension base="tns:Chars">
+                                    <sequence>
+                                        <element name="index" type="boolean"/>
+                                    </sequence>
+                                </extension>
+                            </complexContent>
+                        </complexType>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="Paper">
+        <complexContent>
+            <extension base="tns:Subscribable">
+                <sequence>
+                    <element name="chars">
+                        <complexType>
+                            <complexContent>
+                                <extension base="tns:Chars">
+                                    <sequence>
+                                        <element name="gloss" type="boolean" fixed="false"/>
+                                    </sequence>
+                                </extension>
+                            </complexContent>
+                        </complexType>
+                    </element>
+                    <element name="type">
+                        <simpleType>
+                            <restriction base="tns:Type">
+                                <enumeration value="newspaper"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="Magazine">
+        <complexContent>
+            <extension base="tns:Subscribable">
+                <sequence>
+                    <element name="chars">
+                        <complexType>
+                            <complexContent>
+                                <extension base="tns:Chars">
+                                    <sequence>
+                                        <element name="gloss" type="boolean"/>
+                                    </sequence>
+                                </extension>
+                            </complexContent>
+                        </complexType>
+                    </element>
+                    <element name="type">
+                        <simpleType>
+                            <restriction base="tns:Type">
+                                <enumeration value="magazine"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="Booklet">
+        <complexContent>
+            <extension base="tns:PaperType">
+                <sequence>
+                    <element name="chars">
+                        <complexType>
+                            <complexContent>
+                                <extension base="tns:Chars">
+                                    <sequence>
+                                        <element name="gloss" type="boolean"/>
+                                    </sequence>
+                                </extension>
+                            </complexContent>
+                        </complexType>
+                    </element>
+                    <element name="type">
+                        <simpleType>
+                            <restriction base="tns:Type">
+                                <enumeration value="booklet"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <simpleType name="Id">
+        <restriction base="ID">
+            <pattern value="([a-zA-Z])[a-zA-Z0-9]{7,19}"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="Type">
+        <restriction base="string">
+            <enumeration value="magazine"/>
+            <enumeration value="newspaper"/>
+            <enumeration value="booklet"/>
+        </restriction>
+    </simpleType>
+
+    <complexType name="Chars">
+        <sequence>
+            <element name="colored" type="boolean"/>
+            <element name="volume" type="positiveInteger" minOccurs="1" maxOccurs="70"/>
+        </sequence>
+    </complexType>
+</schema>
