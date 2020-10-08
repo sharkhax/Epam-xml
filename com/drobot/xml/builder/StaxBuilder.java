@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
 
 public class StaxBuilder<T extends AbstractPaper> extends AbstractPapersBuilder<T> {
 
@@ -21,6 +22,7 @@ public class StaxBuilder<T extends AbstractPaper> extends AbstractPapersBuilder<
     private final StaxHandler<T> handler;
 
     public StaxBuilder(StaxHandler<T> handler) {
+        papers = new HashSet<>();
         this.handler = handler;
     }
 
@@ -32,9 +34,13 @@ public class StaxBuilder<T extends AbstractPaper> extends AbstractPapersBuilder<
             while (reader.hasNext()) {
                 int type = reader.next();
                 if (type == XMLStreamConstants.START_ELEMENT) {
-                    papers = handler.handle(reader);
+                    T t = handler.handle(reader);
+                    if (t != null) {
+                        papers.add(t);
+                    }
                 }
             }
+            LOGGER.log(Level.INFO, "Objects have been built");
         } catch (IOException e) {
             LOGGER.log(Level.FATAL, "Error while reading file");
             throw new ReaderException("Error while reading file", e);

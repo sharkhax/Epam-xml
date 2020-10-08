@@ -28,6 +28,7 @@ public class SaxBuilder<T extends AbstractPaper> extends AbstractPapersBuilder<T
     public void buildPapersSet(String xmlPath) throws ReaderException {
         try {
             reader.parse(xmlPath);
+            LOGGER.log(Level.INFO, "Objects have been built");
         } catch (SAXException | IOException e) {
             LOGGER.log(Level.FATAL, "Error while reading file", e);
             throw new ReaderException("Error while reading file", e);

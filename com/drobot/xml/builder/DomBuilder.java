@@ -1,7 +1,6 @@
 package com.drobot.xml.builder;
 
 import com.drobot.xml.entity.AbstractPaper;
-import com.drobot.xml.entity.PapersType;
 import com.drobot.xml.exception.ReaderException;
 import com.drobot.xml.handler.DomHandler;
 import org.apache.logging.log4j.Level;
@@ -30,6 +29,7 @@ public class DomBuilder<T extends AbstractPaper> extends AbstractPapersBuilder<T
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             documentBuilder = factory.newDocumentBuilder();
+            LOGGER.log(Level.INFO, "DOM builder has been initialized");
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.FATAL, "Parser config error", e);
         }
@@ -42,6 +42,7 @@ public class DomBuilder<T extends AbstractPaper> extends AbstractPapersBuilder<T
             document = documentBuilder.parse(xmlPath);
             Element root = document.getDocumentElement();
             papers = handler.handle(root);
+            LOGGER.log(Level.INFO, "Objects have been built");
         } catch (IOException e) {
             LOGGER.log(Level.FATAL, "Error while reading the file", e);
             throw new ReaderException("Error while reading the file", e);

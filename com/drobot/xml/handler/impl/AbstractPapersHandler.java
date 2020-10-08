@@ -14,6 +14,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,6 +63,8 @@ public abstract class AbstractPapersHandler<T extends AbstractPaper> extends Def
         LOGGER.log(Level.DEBUG, "Document parsing is finished");
     }
 
+    protected abstract void buildChars(XMLStreamReader reader, T t) throws XMLStreamException;
+
     protected void setObjectAttributes(T object, Attributes attributes) {
         if (object != null && attributes != null) {
             for (int i = 0; i < attributes.getLength(); i++) {
@@ -70,6 +75,7 @@ public abstract class AbstractPapersHandler<T extends AbstractPaper> extends Def
                     current.setDate(attributes.getValue(i));
                 }
             }
+            LOGGER.log(Level.DEBUG, "Attributes are set");
         } else {
             LOGGER.log(Level.ERROR, "Object or attributes are null");
         }
@@ -85,6 +91,7 @@ public abstract class AbstractPapersHandler<T extends AbstractPaper> extends Def
             }
             if (temp != null && withText.contains(temp)) {
                 currentType = temp;
+                LOGGER.log(Level.DEBUG, "Current type is set");
             }
         } else {
             LOGGER.log(Level.ERROR, "qName is null");
@@ -103,6 +110,8 @@ public abstract class AbstractPapersHandler<T extends AbstractPaper> extends Def
         } else {
             result = false;
         }
+        String log = result ? "Value is set" : "Value does not present";
+        LOGGER.log(Level.DEBUG, log);
         return result;
     }
 
@@ -125,5 +134,51 @@ public abstract class AbstractPapersHandler<T extends AbstractPaper> extends Def
         Node child = list.item(0);
         String field = child.getTextContent();
         return field;
+    }
+
+    protected void buildObject(XMLStreamReader reader, T t) throws XMLStreamException {
+        if (t != null) {
+            String id = reader.getAttributeValue(null, PapersType.ID.getValue());
+            String date = reader.getAttributeValue(null, PapersType.DATE.getValue());
+            t.setId(id);
+            if (date != null) {
+                t.setDate(date);
+            }
+            while (reader.hasNext()) {
+                String value;
+                int type = reader.next();
+                switch (type) {
+                    case XMLStreamConstants.START_ELEMENT -> {
+                        value = reader.getLocalName();
+                        PapersType papersType = PapersType.valueOf(value.toUpperCase());
+                        switch (papersType) {
+                            case TITLE -> t.setTitle(getXMLText(reader));
+                            case TYPE -> t.setType(AbstractPaper.Type.valueOf(getXMLText(reader).toUpperCase()));
+                            case MONTHLY -> t.setMonthly(Boolean.parseBoolean(getXMLText(reader)));
+                            case CHARS -> buildChars(reader, t);
+                            default -> throw new EnumConstantNotPresentException(
+                                    PapersType.class, papersType.getValue());
+                        }
+                    }
+                    case XMLStreamConstants.END_ELEMENT -> {
+                        value = reader.getLocalName();
+                        if (value.equals(t.getPaperType().getValue())) {
+                            LOGGER.log(Level.DEBUG, "Object has been built");
+                            return;
+                        }
+                    }
+                }
+            }
+            throw new XMLStreamException("Unknown element");
+        }
+    }
+
+    protected String getXMLText(XMLStreamReader reader) throws XMLStreamException {
+        String result = null;
+        if (reader.hasNext()) {
+            reader.next();
+            result = reader.getText();
+        }
+        return result;
     }
 }

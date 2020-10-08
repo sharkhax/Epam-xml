@@ -5,12 +5,13 @@ public class Magazine extends AbstractPaper {
     private Chars chars;
 
     public Magazine() {
+        paperType = PapersType.MAGAZINE;
     }
 
     public Magazine(String id, String date, String title, Type type,
                     boolean monthly, boolean colored, int volume,
                     boolean index, boolean gloss) {
-        super(id, date, title, type, monthly, colored, volume);
+        super(id, date, title, type, monthly, colored, volume, PapersType.MAGAZINE);
         this.chars = new Chars(colored, volume, index, gloss);
     }
 

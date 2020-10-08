@@ -6,6 +6,7 @@ public abstract class AbstractPaper {
         FASHION, NORMAL, BRAND
     }
 
+    protected PapersType paperType;
     private String id;
     private String date = "2020-10-02";
     private String title;
@@ -17,13 +18,14 @@ public abstract class AbstractPaper {
     }
 
     public AbstractPaper(String id, String date, String title,
-                         Type type, boolean monthly, boolean colored, int volume) {
+                         Type type, boolean monthly, boolean colored, int volume, PapersType paperType) {
         this.id = id;
         this.date = date;
         this.title = title;
         this.type = type;
         this.monthly = monthly;
         this.chars = new Chars(colored, volume);
+        this.paperType = paperType;
     }
 
     public String getId() {
@@ -72,6 +74,10 @@ public abstract class AbstractPaper {
 
     public void setChars(Chars chars) {
         this.chars = chars;
+    }
+
+    public PapersType getPaperType() {
+        return paperType;
     }
 
     public class Chars {

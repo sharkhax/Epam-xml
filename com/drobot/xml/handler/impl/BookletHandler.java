@@ -2,16 +2,23 @@ package com.drobot.xml.handler.impl;
 
 import com.drobot.xml.entity.PapersType;
 import com.drobot.xml.entity.Booklet;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
 public class BookletHandler extends AbstractPapersHandler<Booklet> {
+
+    private static final Logger LOGGER = LogManager.getLogger(BookletHandler.class);
 
     public BookletHandler() {
         super();
@@ -74,14 +81,50 @@ public class BookletHandler extends AbstractPapersHandler<Booklet> {
             buildBooklet(element, booklet);
             result.add(booklet);
         }
+        LOGGER.log(Level.INFO, "Booklets set have been created");
         return result;
     }
 
     @Override
-    public Booklet handle(XMLStreamReader reader) {
-        Booklet result;
+    public Booklet handle(XMLStreamReader reader) throws XMLStreamException {
+        Booklet result = null;
         String name = reader.getLocalName();
+        if (name.equals(PapersType.BOOKLET.getValue())) {
+            result = new Booklet();
+            buildObject(reader, result);
+        }
+        LOGGER.log(Level.DEBUG, "Booklet has been created");
+        return result;
+    }
 
+    @Override
+    protected void buildChars(XMLStreamReader reader, Booklet booklet) throws XMLStreamException {
+        Booklet.Chars chars = booklet.getChars();
+        while (reader.hasNext()) {
+            int type = reader.next();
+            String value;
+            switch (type) {
+                case XMLStreamConstants.START_ELEMENT -> {
+                    value = reader.getLocalName();
+                    PapersType papersType = PapersType.valueOf(value.toUpperCase());
+                    switch (papersType) {
+                        case COLORED -> chars.setColored(Boolean.parseBoolean(getXMLText(reader)));
+                        case VOLUME -> chars.setVolume(Integer.parseInt(getXMLText(reader)));
+                        case GLOSS -> chars.setGloss(Boolean.parseBoolean(getXMLText(reader)));
+                        default -> throw new EnumConstantNotPresentException(PapersType.class, papersType.name());
+                    }
+                }
+                case XMLStreamConstants.END_ELEMENT -> {
+                    value = reader.getLocalName();
+                    if (value.equals(PapersType.CHARS.getValue())) {
+                        booklet.setChars(chars);
+                        LOGGER.log(Level.DEBUG, "Booklet's chars have been created");
+                        return;
+                    }
+                }
+            }
+        }
+        throw new XMLStreamException("Unknown element");
     }
 
     private void buildBooklet(Element element, Booklet booklet) {

@@ -5,11 +5,12 @@ public class Booklet extends AbstractPaper {
     private Chars chars;
 
     public Booklet() {
+        paperType = PapersType.BOOKLET;
     }
 
     public Booklet(String id, String date, String title, Type type,
                    boolean monthly, boolean colored, int volume, boolean gloss) {
-        super(id, date, title, type, monthly, colored, volume);
+        super(id, date, title, type, monthly, colored, volume, PapersType.BOOKLET);
         this.chars = new Chars(colored, volume, gloss);
     }
 

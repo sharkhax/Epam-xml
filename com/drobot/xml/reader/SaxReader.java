@@ -24,6 +24,7 @@ public class SaxReader {
             SAXParser saxParser = factory.newSAXParser();
             reader = saxParser.getXMLReader();
             reader.setContentHandler(handler);
+            LOGGER.log(Level.INFO, "SAX reader has been initialized");
         } catch (SAXException | ParserConfigurationException e) {
             LOGGER.log(Level.FATAL, "SAX parser error", e);
             throw new ReaderException("SAX parser error", e);

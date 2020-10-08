@@ -5,11 +5,12 @@ public class Paper extends AbstractPaper {
     private Chars chars;
 
     public Paper() {
+        paperType = PapersType.PAPER;
     }
 
     public Paper(String id, String date, String title, Type type,
                  boolean monthly, boolean colored, int volume, boolean index) {
-        super(id, date, title, type, monthly, colored, volume);
+        super(id, date, title, type, monthly, colored, volume, PapersType.PAPER);
         this.chars = new Chars(colored, volume, index);
     }
 
